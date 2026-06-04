@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:labangba.com)",
+      "WebFetch(domain:live.ecomm-data.com)",
+      "WebFetch(domain:namu.wiki)",
+      "Bash(streamlit run *)",
+      "Bash(powershell -Command ' *)",
+      "Bash(python -c ' *)",
+      "Bash(pip install *)",
+      "Bash(Start-Sleep -Seconds 3)",
+      "Bash(Get-Content \"C:\\\\Users\\\\RWIZ\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--shlee\\\\96704e4d-57c8-4a02-a071-aa86145869c2\\\\tasks\\\\brke9jqvl.output\" -Tail 20)",
+      "PowerShell(Start-Process chrome http://localhost:8501)"
+    ]
+  }
+}
