@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 from datetime import timedelta
+import requests
 
 st.set_page_config(
     page_title='홈앤쇼핑 일일 매출 현황',
@@ -16,8 +17,56 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-df = pd.read_csv('주문_데이터.csv')
-df['주문일자'] = pd.to_datetime(df['주문일자'])
+@st.cache_data(ttl=300)
+def load_orders_data():
+    url = st.secrets["SUPABASE_URL"]
+    key = st.secrets["SUPABASE_KEY"]
+
+    headers = {
+        'apikey': key,
+        'Authorization': f'Bearer {key}',
+        'Content-Type': 'application/json'
+    }
+
+    response = requests.get(f'{url}/rest/v1/orders?select=*', headers=headers)
+
+    if response.status_code != 200:
+        st.error(f'Supabase 연결 오류: {response.status_code}')
+        st.error(f'응답: {response.text}')
+        return None
+
+    data = response.json()
+
+    if not data:
+        st.error('데이터가 없습니다.')
+        return None
+
+    df = pd.DataFrame(data)
+    df['order_date'] = pd.to_datetime(df['order_date'])
+
+    column_mapping = {
+        'order_id': '주문ID',
+        'order_date': '주문일자',
+        'product': '상품',
+        'md_user': 'MD유저',
+        'category': '카테고리',
+        'team': '팀',
+        'media': '매체',
+        'product_sales': '상품취급액',
+        'additional_sales': '부가매출',
+        'service_sales': '서비스매출',
+        'advertising_sales': '광고매출',
+        'points': '적립금',
+        'discount': '할인금액',
+        'sales_cost': '매출원가',
+        'gross_profit': '매출총이익',
+        'variable_cost': '변동비',
+        'contribution_profit': '공헌이익'
+    }
+    df = df.rename(columns=column_mapping)
+    return df
+
+df = load_orders_data()
 
 today = df['주문일자'].max().date()
 yesterday = today - timedelta(days=1)
